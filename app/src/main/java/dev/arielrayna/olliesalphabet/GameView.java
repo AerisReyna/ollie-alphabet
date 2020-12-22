@@ -24,18 +24,26 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private GameThread gameThread;
     private ArrayList<GameObject> gameObjects;
 
-    "Add a boolean for letter game vs heart game. Make two functions for setting defaults on all these variables based on the game type."
+//    "Add a boolean for letter game vs heart game. Make two functions for setting defaults on all these variables based on the game type."
 
-    private int maxLetters = 10;
-    private int maxShapes = 0;
-    private char currentLetter = 'A';
-    private boolean isCurrentLetterNeeded = true;
+    private boolean isHeartGame = true;
+    private char[] iLoveYou = {
+            'I', 'L', 'O', 'V', 'E', 'Y', 'O', 'U'
+    };
+    private int currentPosition = 0;
+    private int maxHeartSize;
+    private int minHeartSize;
+
+    private int maxLetters;
+    private int maxShapes;
+    private char currentLetter;
+    private boolean isCurrentLetterNeeded;
     private BarrierBox barrierBox;
     private int padding = 30;
     private Paint defaultPaint;
     private Paint currentPaint;
-    private float defaultTextSize = 80;
-    private float textSizeModifier = 1.5f;
+    private float defaultTextSize;
+    private float textSizeModifier;
     private int defaultColor;
     private int currentColor;
     private int backgroundColor;
@@ -45,30 +53,65 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     public GameView(Context context) {
         super(context);
-
         getHolder().addCallback(this);
-
         gameThread = new GameThread(getHolder(), this);
         setFocusable(true);
-
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         this.maxWidth = metrics.widthPixels;
         this.maxHeight = metrics.heightPixels;
 
         this.gameObjects = new ArrayList<>();
-
         this.barrierBox = new BarrierBox(context, padding);
 
+        if (isHeartGame) {
+            generateHeartGameDefaults();
+        } else {
+            generateLetterGameDefaults();
+        }
+
+        this.click = null;
+    }
+
+    private void generateLetterGameDefaults() {
+        this.maxLetters = 10;
+        this.maxShapes = 0;
+        this.currentLetter = 'A';
+        this.isCurrentLetterNeeded = true;
+        this.defaultTextSize = 80;
+        this.textSizeModifier = 1.5f;
         this.backgroundColor = Color.argb(255, 239, 111, 108);
         this.defaultColor = Color.argb(180, 70, 87, 117);
         this.currentColor = Color.argb(255, 86, 227, 159);
         this.defaultPaint = defaultPaint();
         this.currentPaint = currentLetterPaint();
-        this.click = null;
+    }
+
+    private void generateHeartGameDefaults() {
+        this.minHeartSize = 30;
+        this.maxHeartSize = 150;
+        this.maxLetters = 1;
+        this.maxShapes = 20;
+        this.currentLetter = this.iLoveYou[this.currentPosition];
+        this.isCurrentLetterNeeded = true;
+        this.defaultTextSize = 200;
+        this.textSizeModifier = 1.5f;
+
+        this.backgroundColor = Color.parseColor("#660049");
+        this.defaultColor = Color.BLACK;
+        this.currentColor = Color.parseColor("#8338EC");
+        this.defaultPaint = null;
+        this.currentPaint = heartPaint();
+    }
+
+    private Paint heartPaint() {
+        Paint paint = new Paint();
+        paint.setTextSize(this.defaultTextSize * this.textSizeModifier);
+        paint.setColor(this.currentColor);
+        return paint;
     }
 
     private Paint currentLetterPaint() {
-        currentPaint = new Paint();
+        Paint currentPaint = new Paint();
         currentPaint.setTextSize(defaultTextSize * textSizeModifier);
         currentPaint.setColor(this.currentColor);
         return currentPaint;
@@ -76,7 +119,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private Paint defaultPaint() {
         defaultPaint = new Paint();
-        defaultPaint.setTextSize(defaultTextSize);
         defaultPaint.setColor(this.defaultColor);
         return defaultPaint;
     }
@@ -99,9 +141,19 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             gameObjects.add(generateRandomLetter());
         }
 
-        while (gameObjects.size() - maxLetters <= maxShapes) {
-            gameObjects.add(new Shape());
+        if (this.isHeartGame) {
+            while (gameObjects.size() - maxLetters < maxShapes) {
+                gameObjects.add(generateRandomHeart());
+            }
+        } else {
+            while (gameObjects.size() - maxLetters < maxShapes) {
+                gameObjects.add(new Shape());
+            }
         }
+    }
+
+    private GameObject generateRandomHeart() {
+        return new Heart(barrierBox.getRandom(), this.maxWidth, this.maxHeight, this.minHeartSize, this.maxHeartSize);
     }
 
     private Letter generateRandomLetter() {
@@ -114,17 +166,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     private void nextLetter() {
-        if (this.currentLetter < 'Z') {
-            this.currentLetter += 1;
+        if (this.isHeartGame) {
+            this.currentPosition += 1;
+            if (this.currentPosition >= this.iLoveYou.length) {
+                this.currentPosition = 0;
+            }
+            this.currentLetter = this.iLoveYou[this.currentPosition];
             this.isCurrentLetterNeeded = true;
         } else {
-            gameOver();
+            this.currentLetter += 1;
+            this.isCurrentLetterNeeded = true;
+            if (this.currentLetter > 'Z') {
+                this.currentLetter = 'A';
+            }
         }
-    }
-
-    private void gameOver() {
-        this.currentLetter = 'A';
-        this.isCurrentLetterNeeded = true;
     }
 
     @Override
@@ -137,8 +192,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
         return false;
     }
-
-
 
 
     @Override
@@ -165,7 +218,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         for (GameObject gameObject : gameObjects) {
             State state = gameObject.update(click);
             if (state == State.ADVANCE) {
-                // I'm going to call a break here, but this might cause it to break, because I intend to clear the object that's calling this function.
                 advanceGame();
                 break;
             } else if (state == State.GENERATE_NEW) {
