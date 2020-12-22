@@ -24,6 +24,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     private GameThread gameThread;
     private ArrayList<GameObject> gameObjects;
 
+    "Add a boolean for letter game vs heart game. Make two functions for setting defaults on all these variables based on the game type."
+
     private int maxLetters = 10;
     private int maxShapes = 0;
     private char currentLetter = 'A';
