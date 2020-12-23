@@ -63,13 +63,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         this.gameObjects = new ArrayList<>();
         this.barrierBox = new BarrierBox(context, padding);
 
+        this.click = null;
         if (isHeartGame) {
             generateHeartGameDefaults();
         } else {
             generateLetterGameDefaults();
         }
 
-        this.click = null;
+        generateGameObjects();
+
     }
 
     private void generateLetterGameDefaults() {
@@ -77,10 +79,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         this.maxShapes = 0;
         this.currentLetter = 'A';
         this.isCurrentLetterNeeded = true;
-        this.defaultTextSize = 80;
+        this.defaultTextSize = 180;
         this.textSizeModifier = 1.5f;
-        this.backgroundColor = Color.argb(255, 239, 111, 108);
-        this.defaultColor = Color.argb(180, 70, 87, 117);
+        this.backgroundColor = Color.parseColor("#8B44EE");
+        this.defaultColor = Color.argb(200, 70, 87, 117);
         this.currentColor = Color.argb(255, 86, 227, 159);
         this.defaultPaint = defaultPaint();
         this.currentPaint = currentLetterPaint();
@@ -88,17 +90,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private void generateHeartGameDefaults() {
         this.minHeartSize = 30;
-        this.maxHeartSize = 150;
+        this.maxHeartSize = 100;
         this.maxLetters = 1;
-        this.maxShapes = 20;
+        this.maxShapes = 50;
         this.currentLetter = this.iLoveYou[this.currentPosition];
         this.isCurrentLetterNeeded = true;
-        this.defaultTextSize = 200;
+        this.defaultTextSize = 300;
         this.textSizeModifier = 1.5f;
 
         this.backgroundColor = Color.parseColor("#660049");
         this.defaultColor = Color.BLACK;
-        this.currentColor = Color.parseColor("#8338EC");
+        this.currentColor = Color.WHITE;
         this.defaultPaint = null;
         this.currentPaint = heartPaint();
     }
@@ -112,22 +114,24 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
     private Paint currentLetterPaint() {
         Paint currentPaint = new Paint();
-        currentPaint.setTextSize(defaultTextSize * textSizeModifier);
+        currentPaint.setTextSize(this.defaultTextSize * this.textSizeModifier);
         currentPaint.setColor(this.currentColor);
+        currentPaint.setTextAlign(Paint.Align.LEFT);
         return currentPaint;
     }
 
     private Paint defaultPaint() {
-        defaultPaint = new Paint();
-        defaultPaint.setColor(this.defaultColor);
-        return defaultPaint;
+        Paint paint = new Paint();
+        paint.setTextSize(this.defaultTextSize);
+        paint.setColor(this.defaultColor);
+        paint.setTextAlign(Paint.Align.LEFT);
+        return paint;
     }
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         gameThread.setRunning(true);
         gameThread.start();
-        generateGameObjects();
     }
 
     private void generateGameObjects() {

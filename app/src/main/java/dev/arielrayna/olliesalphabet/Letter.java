@@ -21,13 +21,14 @@ public class Letter implements GameObject {
     private int maxHeight;
     private int maxWidth;
 
+
     private float speedMultiplier;
 
     //    "THIS SHOULD HAVE THE PAINT PASSED IN INSTEAD OF THE BOUNDS. WHAT IT NEEDS IS THE ROTATEDPOINTF SO THAT IT KNOWS WHERE TO DRAW ITSELF AND HOW TO CHANGE IT'S DIRECTION ON EACH UPDATE"
 //    "IF IT'S THE CURRENT LETTER, IT NEEDS TO GO TO A DIFFERENT FUNCTION THAT MAKES IT BIGGER, COLORED BRIGHTLY"
     public Letter(Paint paint, RotatedPointF locationAndDirection, char currentLetter, boolean isCurrentLetterNeeded, int height, int width) {
         this.paint = paint;
-        this.speedMultiplier = 2.0f;
+        this.speedMultiplier = 3.0f;
         this.isCurrentLetter = isCurrentLetterNeeded;
         this.currentLetter = currentLetter;
         if (isCurrentLetterNeeded) {
@@ -62,7 +63,11 @@ public class Letter implements GameObject {
 
     @Override
     public void draw(Canvas canvas) {
-        canvas.drawText(String.valueOf(this.letter), this.bounds.left, this.bounds.bottom, paint);
+        if (this.letter == 'I') {
+            canvas.drawText(String.valueOf(this.letter), this.bounds.left - this.bounds.width(), this.bounds.bottom, paint);
+        } else {
+            canvas.drawText(String.valueOf(this.letter), this.bounds.left, this.bounds.bottom, paint);
+        }
 
     }
 
