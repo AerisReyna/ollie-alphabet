@@ -1,6 +1,7 @@
 # Ollie Alphabet
 
-This is a simple android app I made for my son when he was 2. He really took to technology extremely quickly.
+This is a simple android app I made for my son when he was 2. He really took to technology extremely quickly. The goal was to create a fun way for
+him to learn the alphabet, as there is an extreme lack of child-friendly apps in the android play store.
 
 The game generates the alphabet in order. The `currentLetter` is bigger and colored to emphasize it. When clicked, it will advance to the next letter in 
 a continuous loop. Background letters disappear when clicked a new random letter is generated. Letters continuously move around the screen in random
